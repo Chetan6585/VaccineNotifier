@@ -35,11 +35,11 @@ public class CdnFacadeImplIntegrationTest extends AbstractIntegrationTest {
         Assertions.assertEquals(maharashtra.get().getDistrictName(), "Akola");
     }
 
-    @Test
+    /*@Test
     public void givenVaccinationCenterUri_whenCallingCdnApi_fetchAllCenters(){
         final List<Center> district = cdnFacade.getVaccineCenterByDistrict("Ahmednagar","Maharashtra");
 
         final Optional<Center> maharashtra = district.stream().parallel().filter(state -> state.getDistrictName().equalsIgnoreCase("Akola")).findFirst();
         Assertions.assertEquals(maharashtra.get().getDistrictName(), "Akola");
-    }
+    }*/
 }

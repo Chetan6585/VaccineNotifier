@@ -21,8 +21,8 @@ public class VaccineNotifierPropertyConfiguration {
     @Value("${application.url.cdn.calenderByDistrict}")
     private String calenderByVaccineCenterUrl;
 
-    @Value("${application.userName}")
-    private String userName;
+    @Value("${application.emailId}")
+    private String emailId;
     @Value("${application.password}")
     private String password;
 }

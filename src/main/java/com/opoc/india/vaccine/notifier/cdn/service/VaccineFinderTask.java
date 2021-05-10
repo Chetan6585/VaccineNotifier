@@ -99,7 +99,7 @@ public class VaccineFinderTask implements Runnable {
     private void printCenterByDistrictLog(List<CenterByDistrict> centers) throws MessagingException {
         GmailSender sender = new GmailSender();
         StringBuilder messageBody = new StringBuilder();
-        sender.setSender(notifierPropertyConfiguration.getUserName(), notifierPropertyConfiguration.getPassword());
+        sender.setSender(notifierPropertyConfiguration.getEmailId(), notifierPropertyConfiguration.getPassword());
         sender.addRecipient(recipentEmailId);
 
         if (!centers.isEmpty()) {
