@@ -145,9 +145,8 @@ public class VaccineFinderTask implements Runnable {
     }
 
     private LocalDateTime getISTLocalDateTime() {
-        LocalDateTime localNow = LocalDateTime.now();
         // setting UTC as the timezone
-        ZonedDateTime zonedUTC = localNow.atZone(ZoneId.of("UTC+2"));
+        ZonedDateTime zonedUTC = ZonedDateTime.of(LocalDateTime.now(ZoneId.of("UTC")), ZoneId.of("UTC"));
         // converting to IST
         LocalDateTime zonedIST = zonedUTC.withZoneSameInstant(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
         return zonedIST;
