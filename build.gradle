@@ -1,0 +1,59 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.5'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+
+group = 'com.opoc.india'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+
+	// Start: Database
+	compile('com.zaxxer:HikariCP:2.6.1')
+	compile('com.h2database:h2')
+
+	runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
+	compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.8.10'
+	compile('org.liquibase:liquibase-core')
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+
+	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
+	testCompile('org.springframework.security:spring-security-test')
+	testCompile("org.springframework.boot:spring-boot-starter-activemq")
+	testImplementation('junit:junit:4.13')
+	implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+
+	compile 'org.apache.httpcomponents:httpclient:4.4'
+	//LOMBOK
+	testCompileOnly(group: 'org.projectlombok', name: 'lombok', version: '1.18.10')
+	testAnnotationProcessor(group: 'org.projectlombok', name: 'lombok', version: '1.18.10')
+
+}
+test {
+	useJUnitPlatform()
+}
