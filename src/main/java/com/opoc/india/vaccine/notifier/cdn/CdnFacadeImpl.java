@@ -107,10 +107,15 @@ public class CdnFacadeImpl implements CdnFacade {
 
         HttpEntity<String> entity = getHttpEntityHeaders();
 
-        ResponseEntity<CalendarByDistrictDTO> response = getRestTemplate().exchange(uri, HttpMethod.GET,
-                entity, new ParameterizedTypeReference<CalendarByDistrictDTO>() {
-                });
-        return response;
+        try {
+            ResponseEntity<CalendarByDistrictDTO> response = getRestTemplate().exchange(uri, HttpMethod.GET,
+                    entity, new ParameterizedTypeReference<CalendarByDistrictDTO>() {
+                    });
+            return response;
+        } catch(Exception e){
+            log.error(uri.toString());
+            throw e;
+        }
     }
 
     @Override

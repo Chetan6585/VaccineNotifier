@@ -21,7 +21,7 @@ spring:
 
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:mem:scheduleServices
+    url: jdbc:h2:mem:vaccineNotifier
     #    url: jdbc:h2:tcp://localhost/~/scheduleServices;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
     username: plato-dev

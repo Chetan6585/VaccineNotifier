@@ -14,7 +14,6 @@ import javax.mail.MessagingException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -36,6 +35,7 @@ public class VaccineFinderTask implements Runnable {
     @Override
     public void run() {
         LocalDateTime threadStartTime = LocalDateTime.now();
+        LocalDateTime lastlogInfoTiming = LocalDateTime.now();
 
         while (true) {
             try {
@@ -66,18 +66,44 @@ public class VaccineFinderTask implements Runnable {
                 }
             } catch (Exception e) {
                 log.error(e.getMessage());
-                e.printStackTrace();
+          //      e.printStackTrace();
                 threadSleep(40000);
             }
       //      log.info("Thread going for sleep:" + LocalDateTime.now());
             threadSleep(20000);
        //     log.info("Thread out of sleep:" + LocalDateTime.now());
 
-            final Duration threadDuration = Duration.between(threadStartTime, LocalDateTime.now());
-            if (threadDuration.toMinutes() > 10) {
-                log.info("Thread running for: {}, {}, {}, {}",this.district, this.recipentEmailId, this.age, this.vaccine);
+            final Duration threadDuration = Duration.between(lastlogInfoTiming, LocalDateTime.now());
+            if (threadDuration.toMinutes() > 1) {
+                lastlogInfoTiming = LocalDateTime.now();
+                //log.info("Thread running for: {}, {}, {}, {}",this.district, this.recipentEmailId, this.age, this.vaccine);
+                sendThreadInfo();
             }
 
+        }
+    }
+
+    private void sendThreadInfo()  {
+        try {
+        GmailSender sender = new GmailSender();
+        StringBuilder messageBody = new StringBuilder();
+        sender.setSender(notifierPropertyConfiguration.getUserName(), notifierPropertyConfiguration.getPassword());
+
+            sender.addRecipient("chetan.thetiger@gmail.com");
+
+        messageBody.append("\n")
+                .append("Thread is Running:")
+                .append("\n")
+                .append("Email:"+this.recipentEmailId)
+                .append("\n")
+                .append("District:"+this.district)
+                .append("\n")
+                .append("Vaccine:"+this.getVaccine().name());
+
+        sender.setBody(messageBody.toString());
+        sender.send();
+        } catch (MessagingException e) {
+            e.printStackTrace();
         }
     }
 
@@ -101,7 +127,7 @@ public class VaccineFinderTask implements Runnable {
         StringBuilder messageBody = new StringBuilder();
         sender.setSender(notifierPropertyConfiguration.getUserName(), notifierPropertyConfiguration.getPassword());
         sender.addRecipient(recipentEmailId);
-
+        messageBody.append("\n\n\n\n\n");
         if (!centers.isEmpty()) {
             centers.forEach(centerByDistrict -> {
                 final StringBuilder stringBuilder = new StringBuilder();
@@ -115,7 +141,9 @@ public class VaccineFinderTask implements Runnable {
                         .append("\n")
                         .append("Address:" + centerByDistrict.getAddress())
                         .append("\n")
+                        .append("\n")
                         .append("PinCode:" + centerByDistrict.getPincode())
+                        .append("\n")
                         .append("\n");
                 centerByDistrict.getSessionPerCenter().forEach(sessionPerCenter ->
                         stringBuilder.append("availableCapacity:" + sessionPerCenter.getAvailableCapacity())
@@ -131,7 +159,7 @@ public class VaccineFinderTask implements Runnable {
                 );
                 messageBody.append(stringBuilder);
                 messageBody.append("\n\n\n\n\n");
-                log.info(stringBuilder.toString());
+      //          log.info(stringBuilder.toString());
             });
             try {
                 LocalDateTime zonedIST = getISTLocalDateTime();
