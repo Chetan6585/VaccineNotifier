@@ -74,7 +74,7 @@ public class VaccineFinderTask implements Runnable {
        //     log.info("Thread out of sleep:" + LocalDateTime.now());
 
             final Duration threadDuration = Duration.between(lastlogInfoTiming, LocalDateTime.now());
-            if (threadDuration.toMinutes() > 1) {
+            if (threadDuration.toHours() > 1) {
                 lastlogInfoTiming = LocalDateTime.now();
                 //log.info("Thread running for: {}, {}, {}, {}",this.district, this.recipentEmailId, this.age, this.vaccine);
                 sendThreadInfo();
@@ -87,7 +87,7 @@ public class VaccineFinderTask implements Runnable {
         try {
         GmailSender sender = new GmailSender();
         StringBuilder messageBody = new StringBuilder();
-        sender.setSender(notifierPropertyConfiguration.getUserName(), notifierPropertyConfiguration.getPassword());
+        sender.setSender(notifierPropertyConfiguration.getEmailId(), notifierPropertyConfiguration.getPassword());
 
             sender.addRecipient("chetan.thetiger@gmail.com");
 
