@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
@@ -30,13 +31,16 @@ public class SubsciberEventListener {
 
     @Builder.Default
     private List<Subscriber> subscribers = new ArrayList<>();
-    @Autowired
+
     private CdnService cdnService;
     @Autowired
     private TaskExecutor taskExecutor;
 
     @Autowired
     private VaccineNotifierPropertyConfiguration notifierPropertyConfiguration;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
 
     @EventListener(ApplicationReadyEvent.class)
@@ -50,6 +54,7 @@ public class SubsciberEventListener {
             subscribers.addAll(filteredSubscriber);
             filteredSubscriber.forEach(subscriber ->
             {
+                cdnService = (CdnService) applicationContext.getBean("cdnService");
                 log.info("Thread Started for:{} {} {}  {} ", subscriber.getState(), subscriber.getDistrict(), subscriber.getAge(), subscriber.getEmail());
                 final VaccineFinderTask vaccineFinderTask = VaccineFinderTask.builder()
                         .state(subscriber.getState())

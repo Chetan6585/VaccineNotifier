@@ -7,6 +7,7 @@ import com.opoc.india.vaccine.notifier.cdn.email.GmailSender;
 import com.opoc.india.vaccine.notifier.infrastructure.settings.VaccineNotifierPropertyConfiguration;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,6 +23,7 @@ import java.util.List;
 @Builder
 @Slf4j
 @Getter
+@EqualsAndHashCode(exclude = {"notifierPropertyConfiguration", "cdnService"})
 public class VaccineFinderTask implements Runnable {
 
     private Integer age;
@@ -31,6 +33,7 @@ public class VaccineFinderTask implements Runnable {
     private CdnService cdnService;
     private String recipentEmailId;
     private VaccineNotifierPropertyConfiguration notifierPropertyConfiguration;
+    private LocalDateTime lastMailTiming;
 
     @Override
     public void run() {
@@ -66,15 +69,15 @@ public class VaccineFinderTask implements Runnable {
                 }
             } catch (Exception e) {
                 log.error(e.getMessage());
-          //      e.printStackTrace();
+                //      e.printStackTrace();
                 threadSleep(40000);
             }
-      //      log.info("Thread going for sleep:" + LocalDateTime.now());
-            threadSleep(20000);
-       //     log.info("Thread out of sleep:" + LocalDateTime.now());
+            //      log.info("Thread going for sleep:" + LocalDateTime.now());
+            threadSleep(8000);
+            //     log.info("Thread out of sleep:" + LocalDateTime.now());
 
-            final Duration threadDuration = Duration.between(lastlogInfoTiming, LocalDateTime.now());
-            if (threadDuration.toHours() > 1) {
+            final Duration threadDuration = Duration.between(lastlogInfoTiming, LocalDateTime.now()).abs();
+            if (threadDuration.toHours() > 2) {
                 lastlogInfoTiming = LocalDateTime.now();
                 //log.info("Thread running for: {}, {}, {}, {}",this.district, this.recipentEmailId, this.age, this.vaccine);
                 sendThreadInfo();
@@ -83,25 +86,30 @@ public class VaccineFinderTask implements Runnable {
         }
     }
 
-    private void sendThreadInfo()  {
+    private void sendThreadInfo() {
         try {
-        GmailSender sender = new GmailSender();
-        StringBuilder messageBody = new StringBuilder();
-        sender.setSender(notifierPropertyConfiguration.getEmailId(), notifierPropertyConfiguration.getPassword());
+            final Duration duratoinBetween = Duration.between(getLastMailTiming(), LocalDateTime.now()).abs();
+            if (duratoinBetween.toMinutes() < 1) {
+                return;
+            }
+            this.lastMailTiming = LocalDateTime.now();
+            GmailSender sender = new GmailSender();
+            StringBuilder messageBody = new StringBuilder();
+            sender.setSender(notifierPropertyConfiguration.getEmailId(), notifierPropertyConfiguration.getPassword());
 
             sender.addRecipient("chetan.thetiger@gmail.com");
 
-        messageBody.append("\n")
-                .append("Thread is Running:")
-                .append("\n")
-                .append("Email:"+this.recipentEmailId)
-                .append("\n")
-                .append("District:"+this.district)
-                .append("\n")
-                .append("Vaccine:"+this.getVaccine().name());
+            messageBody.append("\n")
+                    .append("Thread is Running:")
+                    .append("\n")
+                    .append("Email:" + this.recipentEmailId)
+                    .append("\n")
+                    .append("District:" + this.district)
+                    .append("\n")
+                    .append("Vaccine:" + this.getVaccine().name());
 
-        sender.setBody(messageBody.toString());
-        sender.send();
+            sender.setBody(messageBody.toString());
+            sender.send();
         } catch (MessagingException e) {
             e.printStackTrace();
         }
@@ -159,11 +167,11 @@ public class VaccineFinderTask implements Runnable {
                 );
                 messageBody.append(stringBuilder);
                 messageBody.append("\n\n\n\n\n");
-      //          log.info(stringBuilder.toString());
+                log.info(stringBuilder.toString());
             });
             try {
                 LocalDateTime zonedIST = getISTLocalDateTime();
-                sender.setSubject("Vaccine Available for Age: "+this.age+" at: "+this.district+" " + zonedIST.format(DateTimeFormatter.ofPattern("dd-mm-YYYY HH:MM:SS")));
+                sender.setSubject("Vaccine Available for Age: " + this.age + " at: " + this.district + " " + zonedIST.format(DateTimeFormatter.ofPattern("dd-mm-YYYY HH:MM:SS")));
                 sender.setBody(messageBody.toString());
                 sender.send();
             } catch (MessagingException e) {
