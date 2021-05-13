@@ -33,7 +33,8 @@ public class VaccineFinderTask implements Runnable {
     private CdnService cdnService;
     private String recipentEmailId;
     private VaccineNotifierPropertyConfiguration notifierPropertyConfiguration;
-    private LocalDateTime lastMailTiming;
+    @Builder.Default
+    private LocalDateTime lastMailTiming = LocalDateTime.now().minusMinutes(3);
 
     @Override
     public void run() {
@@ -88,11 +89,6 @@ public class VaccineFinderTask implements Runnable {
 
     private void sendThreadInfo() {
         try {
-            final Duration duratoinBetween = Duration.between(getLastMailTiming(), LocalDateTime.now()).abs();
-            if (duratoinBetween.toMinutes() < 1) {
-                return;
-            }
-            this.lastMailTiming = LocalDateTime.now();
             GmailSender sender = new GmailSender();
             StringBuilder messageBody = new StringBuilder();
             sender.setSender(notifierPropertyConfiguration.getEmailId(), notifierPropertyConfiguration.getPassword());
@@ -131,6 +127,11 @@ public class VaccineFinderTask implements Runnable {
     }
 
     private void printCenterByDistrictLog(List<CenterByDistrict> centers) throws MessagingException {
+        final Duration duratoinBetween = Duration.between(this.lastMailTiming, LocalDateTime.now()).abs();
+        if (duratoinBetween.toMinutes() < 1) {
+            return;
+        }
+        this.lastMailTiming = LocalDateTime.now();
         GmailSender sender = new GmailSender();
         StringBuilder messageBody = new StringBuilder();
         sender.setSender(notifierPropertyConfiguration.getEmailId(), notifierPropertyConfiguration.getPassword());
@@ -149,9 +150,7 @@ public class VaccineFinderTask implements Runnable {
                         .append("\n")
                         .append("Address:" + centerByDistrict.getAddress())
                         .append("\n")
-                        .append("\n")
                         .append("PinCode:" + centerByDistrict.getPincode())
-                        .append("\n")
                         .append("\n");
                 centerByDistrict.getSessionPerCenter().forEach(sessionPerCenter ->
                         stringBuilder.append("availableCapacity:" + sessionPerCenter.getAvailableCapacity())
