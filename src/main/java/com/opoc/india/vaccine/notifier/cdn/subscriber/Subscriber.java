@@ -34,5 +34,6 @@ public class Subscriber {
     private String state;
     private String district;
     private String vaccine;
+    private Integer pincode;
 
 }

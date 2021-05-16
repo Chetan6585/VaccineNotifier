@@ -4,6 +4,7 @@ import com.opoc.india.vaccine.notifier.cdn.VACCINE;
 import com.opoc.india.vaccine.notifier.cdn.center.Center;
 import com.opoc.india.vaccine.notifier.cdn.center.CenterByDistrict;
 import com.opoc.india.vaccine.notifier.cdn.email.GmailSender;
+import com.opoc.india.vaccine.notifier.cdn.subscriber.Subscriber;
 import com.opoc.india.vaccine.notifier.infrastructure.settings.VaccineNotifierPropertyConfiguration;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 @AllArgsConstructor
 @Builder
@@ -26,52 +28,35 @@ import java.util.List;
 @EqualsAndHashCode(exclude = {"notifierPropertyConfiguration", "cdnService"})
 public class VaccineFinderTask implements Runnable {
 
-    private Integer age;
-    private String state;
-    private String district;
-    private VACCINE vaccine;
+
+    private Subscriber subscriber;
     private CdnService cdnService;
-    private String recipentEmailId;
     private VaccineNotifierPropertyConfiguration notifierPropertyConfiguration;
     @Builder.Default
     private LocalDateTime lastMailTiming = LocalDateTime.now().minusMinutes(3);
 
     @Override
     public void run() {
-        LocalDateTime threadStartTime = LocalDateTime.now();
         LocalDateTime lastlogInfoTiming = LocalDateTime.now();
 
         while (true) {
             try {
-                if (age.equals(45)) {
-                    switch (vaccine) {
-                        case COVAXIN:
-                            printCenterByDistrictLog(cdnService.getActiveVaccinationForCovaxin45Plus(state, district));
-                            break;
-                        case COVISHIELD:
-                            printCenterByDistrictLog(cdnService.getActiveVaccinationForCovishield45Plus(state, district));
-                            break;
-                        default:
-                            printCenterByDistrictLog(cdnService.getCalenderOfCenterFor45Plus(state, district));
-                            break;
-                    }
-                } else {
-                    switch (vaccine) {
-                        case COVAXIN:
-                            printCenterByDistrictLog(cdnService.getActiveVaccinationForCovaxin18Plus(state, district));
-                            break;
-                        case COVISHIELD:
-                            printCenterByDistrictLog(cdnService.getActiveVaccinationForCovishield18Plus(state, district));
-                            break;
-                        default:
-                            printCenterByDistrictLog(cdnService.getCalenderOfCenterFor18Plus(state, district));
-                            break;
-                    }
+                switch (VACCINE.getVaccine(subscriber.getVaccine())) {
+                    case COVAXIN:
+                        printCenterByDistrictLog(cdnService.getActiveVaccinationForCovaxin(this.subscriber));
+                        break;
+                    case COVISHIELD:
+                        printCenterByDistrictLog(cdnService.getActiveVaccinationForCovishield(this.subscriber));
+                        break;
+                    default:
+                        printCenterByDistrictLog(cdnService.getCalenderOfCenter(this.subscriber));
+                        break;
                 }
+
             } catch (Exception e) {
                 log.error(e.getMessage());
                 //      e.printStackTrace();
-                threadSleep(40000);
+                threadSleep(3000);
             }
             //      log.info("Thread going for sleep:" + LocalDateTime.now());
             threadSleep(8000);
@@ -98,11 +83,11 @@ public class VaccineFinderTask implements Runnable {
             messageBody.append("\n")
                     .append("Thread is Running:")
                     .append("\n")
-                    .append("Email:" + this.recipentEmailId)
+                    .append("Email:" + this.subscriber.getEmail())
                     .append("\n")
-                    .append("District:" + this.district)
+                    .append("District:" + this.subscriber.getDistrict())
                     .append("\n")
-                    .append("Vaccine:" + this.getVaccine().name());
+                    .append("Vaccine:" + VACCINE.getVaccine(this.subscriber.getVaccine()));
 
             sender.setBody(messageBody.toString());
             sender.send();
@@ -135,7 +120,7 @@ public class VaccineFinderTask implements Runnable {
         GmailSender sender = new GmailSender();
         StringBuilder messageBody = new StringBuilder();
         sender.setSender(notifierPropertyConfiguration.getEmailId(), notifierPropertyConfiguration.getPassword());
-        sender.addRecipient(recipentEmailId);
+        sender.addRecipient(subscriber.getEmail());
         messageBody.append("\n\n\n\n\n");
         if (!centers.isEmpty()) {
             centers.forEach(centerByDistrict -> {
@@ -170,7 +155,9 @@ public class VaccineFinderTask implements Runnable {
             });
             try {
                 LocalDateTime zonedIST = getISTLocalDateTime();
-                sender.setSubject("Vaccine Available for Age: " + this.age + " at: " + this.district + " " + zonedIST.format(DateTimeFormatter.ofPattern("dd-mm-YYYY HH:MM:SS")));
+                String serachBy = Objects.nonNull(subscriber.getPincode()) ? "Pincode- " + this.subscriber.getPincode() : " district- " + this.subscriber.getDistrict();
+                final String subject = "Vaccine Available for Age: " + this.subscriber.getAge() + " at: " + serachBy + " " + zonedIST.format(DateTimeFormatter.ofPattern("dd-mm-YYYY HH:MM:SS"));
+                sender.setSubject(subject);
                 sender.setBody(messageBody.toString());
                 sender.send();
             } catch (MessagingException e) {

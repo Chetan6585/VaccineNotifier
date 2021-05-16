@@ -75,47 +75,15 @@ public class CdnFacadeImpl implements CdnFacade {
         return getCalenderOfVaccinationCenter(district, vaccinationDate).getBody().getCenters();
     }
 
-    private ResponseEntity<Sessions> getVaccinationCenter(District district, String vaccinationDate) {
-        final URI uri = UriComponentsBuilder.fromUriString(vaccineNotifierPropertyConfiguration.getVaccineCenterByDistrictUrl())
-                .queryParam("district_id", district.getDistrictId())
+    @Override
+    public List<CenterByDistrict> getCalenderByPin(Integer pinCode) {
+        String vaccinationDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY"));
+
+        final URI uri = UriComponentsBuilder.fromUriString(vaccineNotifierPropertyConfiguration.getCalenderByVaccineCenterByPinUrl())
+                .queryParam("pincode", pinCode)
                 .queryParam("date", vaccinationDate)
                 .build().toUri();
-        CloseableHttpClient httpClient = HttpClients.custom()
-                .setSSLHostnameVerifier(new NoopHostnameVerifier())
-                .build();
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        requestFactory.setHttpClient(httpClient);
-
-        HttpEntity<String> entity = getHttpEntityHeaders();
-
-        ResponseEntity<Sessions> response = getRestTemplate(requestFactory).exchange(uri, HttpMethod.GET,
-                entity, new ParameterizedTypeReference<Sessions>() {
-                });
-        return response;
-    }
-
-    private ResponseEntity<CalendarByDistrictDTO> getCalenderOfVaccinationCenter(District district, String vaccinationDate) {
-        final URI uri = UriComponentsBuilder.fromUriString(vaccineNotifierPropertyConfiguration.getCalenderByVaccineCenterUrl())
-                .queryParam("district_id", district.getDistrictId())
-                .queryParam("date", vaccinationDate)
-                .build().toUri();
-        CloseableHttpClient httpClient = HttpClients.custom()
-                .setSSLHostnameVerifier(new NoopHostnameVerifier())
-                .build();
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        requestFactory.setHttpClient(httpClient);
-
-        HttpEntity<String> entity = getHttpEntityHeaders();
-
-        try {
-            ResponseEntity<CalendarByDistrictDTO> response = getRestTemplate().exchange(uri, HttpMethod.GET,
-                    entity, new ParameterizedTypeReference<CalendarByDistrictDTO>() {
-                    });
-            return response;
-        } catch(Exception e){
-            log.error(uri.toString());
-            throw e;
-        }
+        return fetchCalendarByDistrictDTOResponseEntity(uri).getBody().getCenters();
     }
 
     @Override
@@ -129,6 +97,53 @@ public class CdnFacadeImpl implements CdnFacade {
                 });
         //     log.info(String.valueOf(response.getBody()));
         return response.getBody().getStates();
+    }
+
+    private ResponseEntity<Sessions> getVaccinationCenter(District district, String vaccinationDate) {
+        final URI uri = UriComponentsBuilder.fromUriString(vaccineNotifierPropertyConfiguration.getVaccineCenterByDistrictUrl())
+                .queryParam("district_id", district.getDistrictId())
+                .queryParam("date", vaccinationDate)
+                .build().toUri();
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                .build();
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        requestFactory.setHttpClient(httpClient);
+
+        HttpEntity<String> entity = getHttpEntityHeaders();
+
+        return getRestTemplate(requestFactory).exchange(uri, HttpMethod.GET,
+                entity, new ParameterizedTypeReference<Sessions>() {
+                });
+    }
+
+
+    private ResponseEntity<CalendarByDistrictDTO> getCalenderOfVaccinationCenter(District district, String vaccinationDate) {
+        final URI uri = UriComponentsBuilder.fromUriString(vaccineNotifierPropertyConfiguration.getCalenderByVaccineCenterUrl())
+                .queryParam("district_id", district.getDistrictId())
+                .queryParam("date", vaccinationDate)
+                .build().toUri();
+        return fetchCalendarByDistrictDTOResponseEntity(uri);
+    }
+
+    private ResponseEntity<CalendarByDistrictDTO> fetchCalendarByDistrictDTOResponseEntity(URI uri) {
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                .build();
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        requestFactory.setHttpClient(httpClient);
+
+        HttpEntity<String> entity = getHttpEntityHeaders();
+
+        try {
+            ResponseEntity<CalendarByDistrictDTO> response = getRestTemplate().exchange(uri, HttpMethod.GET,
+                    entity, new ParameterizedTypeReference<CalendarByDistrictDTO>() {
+                    });
+            return response;
+        } catch (Exception e) {
+            log.error(uri.toString());
+            throw e;
+        }
     }
 
     private HttpEntity<String> getHttpEntityHeaders() {

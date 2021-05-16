@@ -25,6 +25,8 @@
             </column>
             <column name="vaccine" type="varchar(100)">
             </column>
+            <column name="pincode" type="number">
+            </column>
         </createTable>
     </changeSet>
 

@@ -1,13 +1,18 @@
-id,age,state,district,email,vaccine
--1,18,Maharashtra,Amravati,chetan.waghmare@outlook.com,null
--2,18,Maharashtra,Amravati,divyaniwaghmare25@gmail.com,COVAXIN
--3,45,Maharashtra,Amravati,divyaniwaghmare25@gmail.com,COVAXIN
--4,18,Maharashtra,Amravati,waghmaresamiksha1@gmail.com,null
--5,18,Maharashtra,Amravati,waghmaresamiksha1@gmail.com,null
--6,18,Uttar Pradesh,Varanasi,covid19vacdetail@gmail.com,null
--7,18,Uttar Pradesh,Varanasi,vipuljswl@gmail.com,null
--8,18,Rajasthan,Jaipur I,cjnikam@yahoo.co.in,null
--9,18,Rajasthan,Jaipur II,cjnikam@yahoo.co.in,null
--10,45,Maharashtra,Amravati,chetan.thetiger@gmail.com,COVAXIN
--11,45,Maharashtra,Amravati,chetan.thetiger@gmail.com,null
+id,age,state,district,email,vaccine,pincode
+-1,18,Maharashtra,Amravati,chetan.waghmare@outlook.com,null,null
+-2,18,Maharashtra,Amravati,divyaniwaghmare25@gmail.com,COVAXIN,null
+-3,45,Maharashtra,Amravati,divyaniwaghmare25@gmail.com,COVAXIN,null
+-4,18,Maharashtra,Amravati,waghmaresamiksha1@gmail.com,null,null
+-5,18,Maharashtra,Amravati,waghmaresamiksha1@gmail.com,null,null
+-6,18,Uttar Pradesh,Varanasi,covid19vacdetail@gmail.com,null,null
+-7,18,Uttar Pradesh,Varanasi,vipuljswl@gmail.com,null,null
+-8,18,Rajasthan,Jaipur I,cjnikam@yahoo.co.in,null,null
+-9,18,Rajasthan,Jaipur II,cjnikam@yahoo.co.in,null,null
+-10,45,Maharashtra,Amravati,chetan.thetiger@gmail.com,COVAXIN,null
+-11,45,Maharashtra,Amravati,chetan.thetiger@gmail.com,null,null
+-12,18,Uttar Pradesh,Varanasi,covid19vacdetail@gmail.com,null,221002
+-13,18,Uttar Pradesh,Varanasi,covid19vacdetail@gmail.com,null,221003
+-14,18,Uttar Pradesh,Varanasi,covid19vacdetail@gmail.com,null,221001
+
+
 

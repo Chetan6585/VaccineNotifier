@@ -5,6 +5,7 @@ import com.opoc.india.vaccine.notifier.cdn.VACCINE;
 import com.opoc.india.vaccine.notifier.cdn.center.Center;
 import com.opoc.india.vaccine.notifier.cdn.center.CenterByDistrict;
 import com.opoc.india.vaccine.notifier.cdn.center.SessionPerCenter;
+import com.opoc.india.vaccine.notifier.cdn.subscriber.Subscriber;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,21 +36,8 @@ public class CdnService {
                 center.getAvailableCapacity().longValue() != 0).collect(Collectors.toList());
     }
 
-    public List<CenterByDistrict> getActiveVaccinationForCovishield18Plus(String state, String district){
-        final List<CenterByDistrict> calenderOfCenterFor18Plus = getCalenderOfCenterFor18Plus(state, district);
-        calenderOfCenterFor18Plus.parallelStream().forEach(centerByDistrict ->
-        {
-            final List<SessionPerCenter> sessionPerCenters = centerByDistrict.getSessionPerCenter().stream()
-                    .filter(center -> center.getVaccine().equalsIgnoreCase(VACCINE.COVISHIELD.name()))
-                    .collect(Collectors.toList());
-            centerByDistrict.setSessionPerCenter(sessionPerCenters);
-        });
-
-        return calenderOfCenterFor18Plus;
-    }
-
-    public List<CenterByDistrict> getActiveVaccinationForCovishield45Plus(String state, String district){
-        final List<CenterByDistrict> calenderOfCenterFor45Plus = getCalenderOfCenterFor45Plus(state, district);
+    public List<CenterByDistrict> getActiveVaccinationForCovishield(Subscriber subscriber){
+        final List<CenterByDistrict> calenderOfCenterFor45Plus = getCalenderOfCenter(subscriber);
         calenderOfCenterFor45Plus.parallelStream().forEach(centerByDistrict ->
         {
             final List<SessionPerCenter> sessionPerCenters = centerByDistrict.getSessionPerCenter().stream()
@@ -59,33 +48,20 @@ public class CdnService {
         return calenderOfCenterFor45Plus;
     }
 
-    public List<CenterByDistrict> getActiveVaccinationForCovaxin18Plus(String state, String district){
-        final List<CenterByDistrict> calenderOfCenterFor18Plus = getCalenderOfCenterFor18Plus(state, district);
-        calenderOfCenterFor18Plus.parallelStream().forEach(centerByDistrict ->
+    public List<CenterByDistrict> getActiveVaccinationForCovaxin(Subscriber subscriber){
+
+        final List<CenterByDistrict> calenderOfCenter = getCalenderOfCenter(subscriber);
+        calenderOfCenter.parallelStream().forEach(centerByDistrict ->
         {
             final List<SessionPerCenter> sessionPerCenters = centerByDistrict.getSessionPerCenter().stream()
                     .filter(center -> center.getVaccine().equalsIgnoreCase(VACCINE.COVAXIN.name()))
                     .collect(Collectors.toList());
             centerByDistrict.setSessionPerCenter(sessionPerCenters);
         });
-
-        return calenderOfCenterFor18Plus;
+        return calenderOfCenter;
     }
 
-    public List<CenterByDistrict> getActiveVaccinationForCovaxin45Plus(String state, String district){
-
-        final List<CenterByDistrict> calenderOfCenterFor45Plus = getCalenderOfCenterFor45Plus(state, district);
-        calenderOfCenterFor45Plus.parallelStream().forEach(centerByDistrict ->
-        {
-            final List<SessionPerCenter> sessionPerCenters = centerByDistrict.getSessionPerCenter().stream()
-                    .filter(center -> center.getVaccine().equalsIgnoreCase(VACCINE.COVAXIN.name()))
-                    .collect(Collectors.toList());
-            centerByDistrict.setSessionPerCenter(sessionPerCenters);
-        });
-        return calenderOfCenterFor45Plus;
-    }
-
-    public List<CenterByDistrict> getCalenderOfCenterFor18Plus(String state, String district){
+    /*public List<CenterByDistrict> getCalenderOfCenterFor18Plus(String state, String district){
         final List<CenterByDistrict> calenderByVaccinationCenter = cdnFacade.getCalenderByVaccinationCenter(district, state);
 
        calenderByVaccinationCenter.stream().parallel()
@@ -99,16 +75,21 @@ public class CdnService {
 
                 });
         return  calenderByVaccinationCenter.parallelStream().filter(centerByDistrict -> !centerByDistrict.getSessionPerCenter().isEmpty()).collect(Collectors.toList());
-    }
+    }*/
 
-    public List<CenterByDistrict> getCalenderOfCenterFor45Plus(String state, String district){
-        final List<CenterByDistrict> calenderByVaccinationCenter = cdnFacade.getCalenderByVaccinationCenter(district, state);
+    public List<CenterByDistrict> getCalenderOfCenter(Subscriber subscriber){
+        final List<CenterByDistrict> calenderByVaccinationCenter;
+        if(Objects.nonNull(subscriber.getPincode())){
+            calenderByVaccinationCenter = cdnFacade.getCalenderByPin(subscriber.getPincode());
+        }else {
+            calenderByVaccinationCenter = cdnFacade.getCalenderByVaccinationCenter(subscriber.getDistrict(), subscriber.getState());
+        }
 
         calenderByVaccinationCenter.stream().parallel()
                 .forEach(centerByDistrict -> {
 
                     final List<SessionPerCenter> sessionPerCenters = centerByDistrict.getSessionPerCenter().stream()
-                            .filter(center -> center.getMinAgeLimit().equals(Integer.valueOf(45)) &&
+                            .filter(center -> center.getMinAgeLimit().equals(subscriber.getAge()) &&
                                     center.getAvailableCapacity().longValue() > 1)
                             .collect(Collectors.toList());
                     centerByDistrict.setSessionPerCenter(sessionPerCenters);

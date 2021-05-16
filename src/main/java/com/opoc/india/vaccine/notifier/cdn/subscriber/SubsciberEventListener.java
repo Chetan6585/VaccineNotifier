@@ -57,16 +57,12 @@ public class SubsciberEventListener {
                 cdnService = (CdnService) applicationContext.getBean("cdnService");
                 log.info("Thread Started for:{} {} {}  {} ", subscriber.getState(), subscriber.getDistrict(), subscriber.getAge(), subscriber.getEmail());
                 final VaccineFinderTask vaccineFinderTask = VaccineFinderTask.builder()
-                        .state(subscriber.getState())
-                        .district(subscriber.getDistrict())
+                        .subscriber(subscriber)
                         .cdnService(cdnService)
-                        .age(subscriber.getAge())
-                        .vaccine(subscriber.getVaccine() == null ? VACCINE.ANY_VACCINE : VACCINE.valueOf(subscriber.getVaccine()))
-                        .recipentEmailId(subscriber.getEmail())
                         .notifierPropertyConfiguration(notifierPropertyConfiguration)
                         .build();
                 taskExecutor.execute(vaccineFinderTask);
-                log.info(vaccineFinderTask.getVaccine().name());
+                log.info(VACCINE.getVaccine(subscriber.getVaccine()).name());
             });
 
             Thread.sleep(60000);

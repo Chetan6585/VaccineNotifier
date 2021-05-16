@@ -13,6 +13,7 @@ public interface CdnFacade {
     List<State> getStates();
     List<District> getDistrictByState(String state);
     List<CenterByDistrict> getCalenderByVaccinationCenter(String districtName, String stateName);
+    List<CenterByDistrict> getCalenderByPin(Integer pinCode);
 
 
 }
