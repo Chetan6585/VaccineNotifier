@@ -151,6 +151,7 @@ public class VaccineFinderTask implements Runnable {
                         .append("Address:" + centerByDistrict.getAddress())
                         .append("\n")
                         .append("PinCode:" + centerByDistrict.getPincode())
+                        .append("\n")
                         .append("\n");
                 centerByDistrict.getSessionPerCenter().forEach(sessionPerCenter ->
                         stringBuilder.append("availableCapacity:" + sessionPerCenter.getAvailableCapacity())
@@ -161,7 +162,6 @@ public class VaccineFinderTask implements Runnable {
                                 .append("\n")
                                 .append("Vaccine:" + sessionPerCenter.getVaccine())
                                 .append("\n")
-                                .append("slots:" + sessionPerCenter.getSlots())
                                 .append("\n")
                 );
                 messageBody.append(stringBuilder);
