@@ -56,10 +56,10 @@ public class VaccineFinderTask implements Runnable {
             } catch (Exception e) {
                 log.error(e.getMessage());
                 //      e.printStackTrace();
-                threadSleep(3000);
+                threadSleep(20000);
             }
             //      log.info("Thread going for sleep:" + LocalDateTime.now());
-            threadSleep(8000);
+            threadSleep(15000);
             //     log.info("Thread out of sleep:" + LocalDateTime.now());
 
             final Duration threadDuration = Duration.between(lastlogInfoTiming, LocalDateTime.now()).abs();
