@@ -31,7 +31,7 @@ public class VaccineFinderResource {
                                            @RequestParam(value = "age", required = true) final Integer age,
                                            @RequestParam(value = "email", required = true) final String email,
                                            @RequestParam(value = "vaccine", required = false) final String vaccine) {
-        log.info("Thread Started for:{} {} {}  {} ",stateName, districtName, age, email);
+        //log.info("Thread Started for:{} {} {}  {} ",stateName, districtName, age, email);
      /*   final VaccineFinderTask vaccineFinderTask = VaccineFinderTask.builder()
                 .state(stateName)
                 .district(districtName)

@@ -151,12 +151,12 @@ public class VaccineFinderTask implements Runnable {
                 );
                 messageBody.append(stringBuilder);
                 messageBody.append("\n\n\n\n\n");
-                log.info(stringBuilder.toString());
+           //     log.info(stringBuilder.toString());
             });
             try {
                 LocalDateTime zonedIST = getISTLocalDateTime();
                 String serachBy = Objects.nonNull(subscriber.getPincode()) ? "Pincode- " + this.subscriber.getPincode() : " district- " + this.subscriber.getDistrict();
-                final String subject = "Vaccine Available for Age: " + this.subscriber.getAge() + " at: " + serachBy + " " + zonedIST.format(DateTimeFormatter.ofPattern("dd-mm-YYYY HH:MM:SS"));
+                final String subject = "Vaccine Available at: " + serachBy + " for age: " +this.subscriber.getAge() ;
                 sender.setSubject(subject);
                 sender.setBody(messageBody.toString());
                 sender.send();

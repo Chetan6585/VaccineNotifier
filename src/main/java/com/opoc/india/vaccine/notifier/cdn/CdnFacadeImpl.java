@@ -141,7 +141,7 @@ public class CdnFacadeImpl implements CdnFacade {
                     });
             return response;
         } catch (Exception e) {
-            log.error(uri.toString());
+            //log.error(uri.toString());
             throw e;
         }
     }
