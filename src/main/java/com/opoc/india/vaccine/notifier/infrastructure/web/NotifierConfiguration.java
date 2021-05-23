@@ -2,12 +2,10 @@ package com.opoc.india.vaccine.notifier.infrastructure.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.client.RestTemplateCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.hateoas.server.mvc.TypeConstrainedMappingJackson2HttpMessageConverter;
@@ -35,12 +33,11 @@ public class NotifierConfiguration {
         };
     }
 
-   /* @Bean
-    @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    @Bean
     public RestTemplate getRestTemplate() {
         RestTemplate restTemplate = restTemplateBuilder.build();
         return restTemplate;
-    }*/
+    }
 
     private List<HttpMessageConverter<?>> getHalConverter(final RestTemplate restTemplate) {
         List<HttpMessageConverter<?>> converters = restTemplate.getMessageConverters();

@@ -56,7 +56,7 @@ public class VaccineFinderTask implements Runnable {
             } catch (Exception e) {
                 log.error(e.getMessage());
                 //      e.printStackTrace();
-                threadSleep(20000);
+          //      threadSleep(20000);
             }
             //      log.info("Thread going for sleep:" + LocalDateTime.now());
             threadSleep(15000);
@@ -113,7 +113,7 @@ public class VaccineFinderTask implements Runnable {
 
     private void printCenterByDistrictLog(List<CenterByDistrict> centers) throws MessagingException {
         final Duration duratoinBetween = Duration.between(this.lastMailTiming, LocalDateTime.now()).abs();
-        if (duratoinBetween.toMinutes() < 1) {
+        if (duratoinBetween.getSeconds() < 20) {
             return;
         }
         this.lastMailTiming = LocalDateTime.now();

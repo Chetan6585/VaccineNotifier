@@ -9,13 +9,11 @@ import com.opoc.india.vaccine.notifier.cdn.state.Districts;
 import com.opoc.india.vaccine.notifier.cdn.state.State;
 import com.opoc.india.vaccine.notifier.cdn.state.States;
 import com.opoc.india.vaccine.notifier.infrastructure.settings.VaccineNotifierPropertyConfiguration;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -36,17 +34,16 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j
 public class CdnFacadeImpl implements CdnFacade {
 
     private static ConcurrentHashMap<String, List<District>> stringDistrictConcurrentHashMap = new ConcurrentHashMap<>();
-    private RestTemplateBuilder restTemplateBuilder;
+    private RestTemplate restTemplate;
     private VaccineNotifierPropertyConfiguration vaccineNotifierPropertyConfiguration;
 
-    public CdnFacadeImpl(RestTemplateBuilder restTemplateBuilder,
+    public CdnFacadeImpl(RestTemplate restTemplate,
                          VaccineNotifierPropertyConfiguration vaccineNotifierPropertyConfiguration) {
-        this.restTemplateBuilder = restTemplateBuilder;
+        this.restTemplate = restTemplate;
         this.vaccineNotifierPropertyConfiguration = vaccineNotifierPropertyConfiguration;
     }
 
@@ -68,6 +65,7 @@ public class CdnFacadeImpl implements CdnFacade {
     }
 
     @Override
+    @Synchronized
     public List<CenterByDistrict> getCalenderByVaccinationCenter(String districtName, String stateName) {
         final District district = getDistrictByState(districtName, stateName);
         String vaccinationDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY"));
@@ -76,6 +74,7 @@ public class CdnFacadeImpl implements CdnFacade {
     }
 
     @Override
+    @Synchronized
     public List<CenterByDistrict> getCalenderByPin(Integer pinCode) {
         String vaccinationDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY"));
 
@@ -141,7 +140,7 @@ public class CdnFacadeImpl implements CdnFacade {
                     });
             return response;
         } catch (Exception e) {
-            //log.error(uri.toString());
+            log.error(uri.toString());
             throw e;
         }
     }
@@ -153,17 +152,20 @@ public class CdnFacadeImpl implements CdnFacade {
         headers.add("authority", "cdn-api.co-vin.in");
         headers.add("pragma", "no-cache");
         headers.add("cache-control", "no-cache");
+        headers.add("scheme","https");
         headers.add("sec-ch-ua", "^^");
         headers.add("accept", "application/json, text/plain, */*");
+        headers.add("accept-encoding","gzip, deflate, br");
+        headers.add("cache-control","max-age=0");
         headers.add("dnt", "1");
         headers.add("sec-ch-ua-mobile", "?0");
-        headers.add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36");
+        headers.add("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36");
         headers.add("origin", "https://selfregistration.cowin.gov.in");
         headers.add("sec-fetch-site", "cross-site");
         headers.add("sec-fetch-mode", "cors");
         headers.add("sec-fetch-dest", "empty");
         headers.add("referer", "https://selfregistration.cowin.gov.in/");
-        headers.add("accept-language", "en-US,en;q=0.9,en-IN;q=0.8");
+        headers.add("accept-language", "en,en-GB;q=0.9,en-US;q=0.8,hi;q=0.7,fr;q=0.6,mr;q=0.5");
         HttpEntity<String> entity = new HttpEntity<>(headers);
         return entity;
     }
@@ -197,7 +199,7 @@ public class CdnFacadeImpl implements CdnFacade {
     }
 
     private RestTemplate getRestTemplate() {
-        return restTemplateBuilder.build();
+        return this.restTemplate;
     }
 
     private RestTemplate getRestTemplate(HttpComponentsClientHttpRequestFactory requestFactory) {

@@ -32,7 +32,9 @@ public class SubsciberEventListener {
     @Builder.Default
     private List<Subscriber> subscribers = new ArrayList<>();
 
+    @Autowired
     private CdnService cdnService;
+
     @Autowired
     private TaskExecutor taskExecutor;
 
@@ -54,7 +56,6 @@ public class SubsciberEventListener {
             subscribers.addAll(filteredSubscriber);
             filteredSubscriber.forEach(subscriber ->
             {
-                cdnService = (CdnService) applicationContext.getBean("cdnService");
                 log.info("Thread Started for:{} {} {}  {} ", subscriber.getState(), subscriber.getDistrict(), subscriber.getAge(), subscriber.getEmail());
                 final VaccineFinderTask vaccineFinderTask = VaccineFinderTask.builder()
                         .subscriber(subscriber)

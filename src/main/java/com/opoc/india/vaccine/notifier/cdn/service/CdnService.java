@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class CdnService {
 
     private CdnFacade cdnFacade;
