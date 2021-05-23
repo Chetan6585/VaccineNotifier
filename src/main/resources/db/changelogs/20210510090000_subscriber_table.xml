@@ -27,6 +27,8 @@
             </column>
             <column name="pincode" type="number">
             </column>
+            <column name="dose_number" type="number">
+            </column>
         </createTable>
     </changeSet>
 

@@ -61,6 +61,11 @@ public class SubsciberEventListener {
                         .cdnService(cdnService)
                         .notifierPropertyConfiguration(notifierPropertyConfiguration)
                         .build();
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+        //            e.printStackTrace();
+                }
                 taskExecutor.execute(vaccineFinderTask);
                 log.info(VACCINE.getVaccine(subscriber.getVaccine()).name());
             });

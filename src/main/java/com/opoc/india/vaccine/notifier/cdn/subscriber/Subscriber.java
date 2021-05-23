@@ -35,5 +35,6 @@ public class Subscriber {
     private String district;
     private String vaccine;
     private Integer pincode;
+    private Integer doseNumber;
 
 }

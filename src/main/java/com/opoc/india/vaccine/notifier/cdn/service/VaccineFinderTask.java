@@ -17,7 +17,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,11 +54,11 @@ public class VaccineFinderTask implements Runnable {
 
             } catch (Exception e) {
                 log.error(e.getMessage());
-                //      e.printStackTrace();
-                threadSleep(20000);
+                //              e.printStackTrace();
+                //       threadSleep(20000);
             }
             //      log.info("Thread going for sleep:" + LocalDateTime.now());
-            threadSleep(15000);
+            threadSleep(30000);
             //     log.info("Thread out of sleep:" + LocalDateTime.now());
 
             final Duration threadDuration = Duration.between(lastlogInfoTiming, LocalDateTime.now()).abs();
@@ -151,12 +150,12 @@ public class VaccineFinderTask implements Runnable {
                 );
                 messageBody.append(stringBuilder);
                 messageBody.append("\n\n\n\n\n");
-           //     log.info(stringBuilder.toString());
+                //     log.info(stringBuilder.toString());
             });
             try {
                 LocalDateTime zonedIST = getISTLocalDateTime();
                 String serachBy = Objects.nonNull(subscriber.getPincode()) ? "Pincode- " + this.subscriber.getPincode() : " district- " + this.subscriber.getDistrict();
-                final String subject = "Vaccine Available at: " + serachBy + " for age: " +this.subscriber.getAge() ;
+                final String subject = "Vaccine Available at: " + serachBy + " for age: " + this.subscriber.getAge();
                 sender.setSubject(subject);
                 sender.setBody(messageBody.toString());
                 sender.send();

@@ -35,4 +35,11 @@ public class SessionPerCenter {
 
     @JsonProperty("date")
     private String date;
+
+    @JsonProperty("available_capacity_dose1")
+    private Integer availableCapacityDose1;
+
+    @JsonProperty("available_capacity_dose2")
+    private Integer availableCapacityDose2;
+
 }
