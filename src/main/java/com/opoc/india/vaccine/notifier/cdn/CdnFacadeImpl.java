@@ -14,11 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -32,18 +34,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 @Service
 @Slf4j
 public class CdnFacadeImpl implements CdnFacade {
 
     private static ConcurrentHashMap<String, List<District>> stringDistrictConcurrentHashMap = new ConcurrentHashMap<>();
-    private RestTemplate restTemplate;
+    private RestTemplateBuilder restTemplateBuilder;
     private VaccineNotifierPropertyConfiguration vaccineNotifierPropertyConfiguration;
 
-    public CdnFacadeImpl(RestTemplate restTemplate,
+    public CdnFacadeImpl(RestTemplateBuilder restTemplateBuilder,
                          VaccineNotifierPropertyConfiguration vaccineNotifierPropertyConfiguration) {
-        this.restTemplate = restTemplate;
+        this.restTemplateBuilder = restTemplateBuilder;
         this.vaccineNotifierPropertyConfiguration = vaccineNotifierPropertyConfiguration;
     }
 
@@ -73,17 +76,6 @@ public class CdnFacadeImpl implements CdnFacade {
         return getCalenderOfVaccinationCenter(district, vaccinationDate).getBody().getCenters();
     }
 
-    @Override
-    @Synchronized
-    public List<CenterByDistrict> getCalenderByPin(Integer pinCode) {
-        String vaccinationDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY"));
-
-        final URI uri = UriComponentsBuilder.fromUriString(vaccineNotifierPropertyConfiguration.getCalenderByVaccineCenterByPinUrl())
-                .queryParam("pincode", pinCode)
-                .queryParam("date", vaccinationDate)
-                .build().toUri();
-        return fetchCalendarByDistrictDTOResponseEntity(uri).getBody().getCenters();
-    }
 
     @Override
     public List<State> getStates() {
@@ -96,6 +88,18 @@ public class CdnFacadeImpl implements CdnFacade {
                 });
         //     log.info(String.valueOf(response.getBody()));
         return response.getBody().getStates();
+    }
+
+    @Override
+    @Synchronized
+    public List<CenterByDistrict> getCalenderByPin(Integer pinCode) {
+        String vaccinationDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-YYYY"));
+
+        final URI uri = UriComponentsBuilder.fromUriString(vaccineNotifierPropertyConfiguration.getCalenderByVaccineCenterByPinUrl())
+                .queryParam("pincode", pinCode)
+                .queryParam("date", vaccinationDate)
+                .build().toUri();
+        return fetchCalendarByDistrictDTOResponseEntity(uri).getBody().getCenters();
     }
 
     private ResponseEntity<Sessions> getVaccinationCenter(District district, String vaccinationDate) {
@@ -115,7 +119,6 @@ public class CdnFacadeImpl implements CdnFacade {
                 entity, new ParameterizedTypeReference<Sessions>() {
                 });
     }
-
 
     private ResponseEntity<CalendarByDistrictDTO> getCalenderOfVaccinationCenter(District district, String vaccinationDate) {
         final URI uri = UriComponentsBuilder.fromUriString(vaccineNotifierPropertyConfiguration.getCalenderByVaccineCenterUrl())
@@ -199,11 +202,11 @@ public class CdnFacadeImpl implements CdnFacade {
     }
 
     private RestTemplate getRestTemplate() {
-        return this.restTemplate;
+        return this.restTemplateBuilder.build();
     }
 
     private RestTemplate getRestTemplate(HttpComponentsClientHttpRequestFactory requestFactory) {
-        return new RestTemplate(requestFactory);
+                 return new RestTemplate(requestFactory);
     }
 
 

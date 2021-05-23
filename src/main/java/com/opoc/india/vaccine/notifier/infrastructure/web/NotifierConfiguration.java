@@ -17,9 +17,6 @@ import java.util.List;
 @org.springframework.context.annotation.Configuration
 public class NotifierConfiguration {
 
-    @Autowired
-    RestTemplateBuilder restTemplateBuilder;
-
 
     @Autowired
     @Qualifier("halJacksonHttpMessageConverter")
@@ -34,7 +31,7 @@ public class NotifierConfiguration {
     }
 
     @Bean
-    public RestTemplate getRestTemplate() {
+    public RestTemplate getRestTemplate(RestTemplateBuilder restTemplateBuilder) {
         RestTemplate restTemplate = restTemplateBuilder.build();
         return restTemplate;
     }
